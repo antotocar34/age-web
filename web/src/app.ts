@@ -94,7 +94,7 @@ class AgeDecryptor {
     this.uploadArea.addEventListener('drop', (e) => {
       e.preventDefault();
       this.uploadArea.classList.remove('drag-over');
-      const file = e.dataTransfer.files[0];
+      const file = e.dataTransfer?.files[0];
       if (file && file.name.endsWith('.age')) {
         this.handleFileSelect(file);
       }
