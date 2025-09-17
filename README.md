@@ -1,4 +1,4 @@
-# AGE Web Decryptor
+# AGE Web Decryptor 🚀
 
 A 100% client-side AGE decryption web app that runs entirely in your browser. Decrypt AGE-encrypted files using either a passphrase or X25519 private key without any data leaving your device.
 
