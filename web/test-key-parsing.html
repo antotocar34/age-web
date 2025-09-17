@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Key Parsing Test</title>
+</head>
+<body>
+    <h1>AGE Key Parsing Test</h1>
+    <textarea id="keyInput" rows="10" cols="80" placeholder="Paste your AGE private key here..."></textarea>
+    <br><br>
+    <button onclick="testParsing()">Test Parsing</button>
+    <div id="result"></div>
+
+    <script type="module">
+        function parseX25519Key(keyBytes) {
+            const keyText = new TextDecoder().decode(keyBytes).trim();
+            
+            // Split into lines and filter out comments and empty lines
+            const lines = keyText.split('\n')
+                .map(line => line.trim())
+                .filter(line => line.length > 0 && !line.startsWith('#'));
+            
+            // Look for AGE-SECRET-KEY-1 line
+            const keyLine = lines.find(line => line.startsWith('AGE-SECRET-KEY-1'));
+            
+            if (keyLine) {
+                return keyLine;
+            }
+            
+            // If no AGE-SECRET-KEY-1 found, check if the entire text is a key
+            if (keyText.startsWith('AGE-SECRET-KEY-1')) {
+                return keyText;
+            }
+            
+            return keyText;
+        }
+
+        window.testParsing = function() {
+            const input = document.getElementById('keyInput').value;
+            const result = document.getElementById('result');
+            
+            try {
+                const keyBytes = new TextEncoder().encode(input);
+                const parsed = parseX25519Key(keyBytes);
+                
+                result.innerHTML = `
+                    <h3>Parsed Key:</h3>
+                    <pre style="background: #f0f0f0; padding: 10px; border-radius: 4px;">${parsed}</pre>
+                    <p><strong>Length:</strong> ${parsed.length} characters</p>
+                    <p><strong>Valid format:</strong> ${parsed.startsWith('AGE-SECRET-KEY-1') ? '✅ Yes' : '❌ No'}</p>
+                `;
+            } catch (error) {
+                result.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        };
+    </script>
+</body>
+</html>
