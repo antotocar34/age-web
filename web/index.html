@@ -4,15 +4,28 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Security-Policy" content="
-      default-src 'self';
-      script-src 'self' 'unsafe-inline';
-      connect-src 'self' ws://localhost:* ws://127.0.0.1:*;
-      img-src 'self' blob: data:;
-      style-src 'self' 'unsafe-inline';
-      object-src 'none';
+      default-src 'none';
       base-uri 'none';
-      worker-src 'self' blob:;
+      script-src 'self' 'wasm-unsafe-eval';
+      worker-src 'self' blob;
+      style-src 'self' 'unsafe-inline';
+      img-src 'self' data:;
+      font-src 'self';
+      object-src 'none';
+      media-src 'none';
+      form-action 'none';
+      connect-src 'none';
     ">
+    <!--
+    -- default-src 'self';
+    -- script-src 'self' 'unsafe-inline';
+    -- connect-src 'none'
+    -- img-src 'self' blob: data:;
+    -- style-src 'self' 'unsafe-inline';
+    -- object-src 'none';
+    -- base-uri 'none';
+    -- worker-src 'self' blob:;
+    -->
     <title>AGE Decryptor</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
