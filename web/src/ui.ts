@@ -26,6 +26,65 @@ export function createUI() {
         margin: 0 auto;
         border: 1px solid #e9ecef;
       ">
+        <!-- Input Source Selection -->
+        <div class="option-group" id="inputSourceGroup" style="
+          display: flex;
+          gap: 1rem;
+          margin-bottom: 2rem;
+          padding: 1rem;
+          background: #f8f9fa;
+          border-radius: 8px;
+          border: 1px solid #e9ecef;
+        ">
+          <label style="
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: #495057;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            flex: 1;
+            justify-content: center;
+            font-size: 0.95rem;
+            background: white;
+            border: 1px solid #dee2e6;
+          ">
+            <input type="radio" name="inputSource" value="file" checked style="
+              width: 16px;
+              height: 16px;
+              accent-color: #007bff;
+            ">
+            <span>File</span>
+          </label>
+          <label style="
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: #495057;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            flex: 1;
+            justify-content: center;
+            font-size: 0.95rem;
+            background: white;
+            border: 1px solid #dee2e6;
+          ">
+            <input type="radio" name="inputSource" value="paste" style="
+              width: 16px;
+              height: 16px;
+              accent-color: #007bff;
+            ">
+            <span>Paste Ciphertext</span>
+          </label>
+        </div>
+
+        <!-- Hidden File Input (moved outside upload area to prevent DOM replacement issues) -->
+        <input type="file" id="fileInput" accept=".age" style="display: none;">
+        
         <!-- Upload Area -->
         <div class="upload-area" id="uploadArea" style="
           border: 2px dashed #dee2e6;
@@ -59,8 +118,37 @@ export function createUI() {
               color: #6c757d;
               margin: 0;
             ">Supports files encrypted with passphrases or X25519 keys</small>
-            <input type="file" id="fileInput" accept=".age" style="display: none;">
           </div>
+        </div>
+
+        <!-- Ciphertext Paste Area -->
+        <div class="input-group" id="cipherTextGroup" style="display:none; margin-bottom: 2rem;">
+          <label for="cipherText" style="
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #495057;
+            font-size: 1rem;
+          ">Ciphertext:</label>
+          <textarea id="cipherText" placeholder="Paste your AGE-encrypted content here (ASCII-armored works)" style="
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            background: white;
+            min-height: 160px;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            line-height: 1.4;
+            box-sizing: border-box;
+            resize: vertical;
+          "></textarea>
+          <small style="
+            display: block;
+            margin-top: 0.5rem;
+            color: #6c757d;
+            font-size: 0.85rem;
+          ">Supports ASCII-armored AGE blocks (-----BEGIN AGE ENCRYPTED FILE-----) or other UTF-8 text.</small>
         </div>
         
         <!-- Decrypt Options -->
@@ -175,30 +263,6 @@ export function createUI() {
               color: #6c757d;
               font-size: 0.85rem;
             ">Paste your private key in AGE-SECRET-KEY-1... format. Comments will be automatically removed.</small>
-            
-            <div class="key-format-example" style="
-              margin-top: 1rem;
-              padding: 1rem;
-              background: #f8f9fa;
-              border: 1px solid #e9ecef;
-              border-radius: 6px;
-              font-size: 0.85rem;
-            ">
-              <strong style="color: #495057; display: block; margin-bottom: 0.5rem;">Example format:</strong>
-              <pre style="
-                background: #e9ecef;
-                padding: 0.75rem;
-                border-radius: 4px;
-                font-family: 'SF Mono', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-                font-size: 0.75rem;
-                line-height: 1.4;
-                margin: 0;
-                overflow-x: auto;
-                color: #495057;
-              "># created: 2025-09-17T21:53:15+01:00
-# public key: age1rcjvx76apckral0teuveyw4q67ad0vj6ygsksqhlfgqhxj4x692s0pturs
-AGE-SECRET-KEY-1JTL3FX407H4SJL66A0YAX8J26V6G0EE5HA83JRQVNDVW0K9JCSWSAQ3ER6</pre>
-            </div>
           </div>
           
           <!-- Output Options -->
@@ -206,7 +270,7 @@ AGE-SECRET-KEY-1JTL3FX407H4SJL66A0YAX8J26V6G0EE5HA83JRQVNDVW0K9JCSWSAQ3ER6</pre>
             <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #495057; font-size: 1rem;">Output Options:</label>
             <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.95rem; color: #495057;">
               <input type="checkbox" id="showTextPreview" checked style="width: 16px; height: 16px; accent-color: #007bff;">
-              <span>Show text preview for small files (default for text files under 1MB)</span>
+              <span>Show text preview for small files (default for text files under 100KB)</span>
             </label>
             <small style="display: block; margin-top: 0.5rem; color: #6c757d; font-size: 0.85rem;">
               If the decrypted file is small and contains valid UTF-8 text, it will be displayed in the browser instead of downloaded.
@@ -371,6 +435,18 @@ AGE-SECRET-KEY-1JTL3FX407H4SJL66A0YAX8J26V6G0EE5HA83JRQVNDVW0K9JCSWSAQ3ER6</pre>
           font-size: 0.9rem;
           margin: 0.5rem 0;
         ">Built with WebAssembly and modern web technologies</p>
+        <p style="
+          font-size: 0.9rem;
+          margin: 0.5rem 0;
+        ">
+          <a href="https://github.com/antotocar34/age-web" target="_blank" rel="noopener noreferrer" style="
+            color: #007bff;
+            text-decoration: none;
+            transition: color 0.2s ease;
+          " onmouseover="this.style.color='#0056b3'" onmouseout="this.style.color='#007bff'">
+            View on GitHub
+          </a>
+        </p>
       </footer>
     </div>
   `;
