@@ -1,13 +1,23 @@
 export function createUI() {
   const container = document.createElement('div');
   container.innerHTML = `
-    <div style="
+    <style>
+      @media (min-width: 768px) {
+        .age-container { padding: 2rem !important; }
+        .age-main { 
+          padding: 2.5rem !important; 
+          max-width: 700px !important; 
+        }
+        .age-header { margin-bottom: 3rem !important; }
+      }
+    </style>
+    <div class="age-container" style="
       background: #f8f9fa;
       min-height: 100vh;
-      padding: 2rem;
+      padding: 1rem;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     ">
-      <header style="text-align: center; margin-bottom: 3rem;">
+      <header class="age-header" style="text-align: center; margin-bottom: 2rem;">
         <h1 style="
           font-size: 2.5rem;
           font-weight: 600;
@@ -17,14 +27,16 @@ export function createUI() {
         <p style="font-size: 1.1rem; color: #666; margin: 0;">Decrypt AGE-encrypted files securely in your browser</p>
       </header>
       
-      <main style="
+      <main class="age-main" style="
         background: white;
         border-radius: 12px;
-        padding: 2.5rem;
+        padding: 1.5rem;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        max-width: 600px;
+        max-width: 100%;
+        width: 100%;
         margin: 0 auto;
         border: 1px solid #e9ecef;
+        box-sizing: border-box;
       ">
         <!-- Input Source Selection -->
         <div class="option-group" id="inputSourceGroup" style="
