@@ -15,6 +15,9 @@ class AgeDecryptor {
   private passphraseInput!: HTMLInputElement;
   private keyInput!: HTMLTextAreaElement;
   private modeRadios!: NodeListOf<HTMLInputElement>;
+  private inputSourceRadios!: NodeListOf<HTMLInputElement>;
+  private cipherTextGroup!: HTMLElement;
+  private cipherTextInput!: HTMLTextAreaElement;
   private currentFile: File | null = null;
   private btnText!: HTMLElement;
   private showTextPreview!: HTMLInputElement;
@@ -58,6 +61,9 @@ class AgeDecryptor {
     this.passphraseInput = document.getElementById('passphrase') as HTMLInputElement;
     this.keyInput = document.getElementById('privateKey') as HTMLTextAreaElement;
     this.modeRadios = document.querySelectorAll('input[name="mode"]') as NodeListOf<HTMLInputElement>;
+    this.inputSourceRadios = document.querySelectorAll('input[name="inputSource"]') as NodeListOf<HTMLInputElement>;
+    this.cipherTextGroup = document.getElementById('cipherTextGroup') as HTMLElement;
+    this.cipherTextInput = document.getElementById('cipherText') as HTMLTextAreaElement;
     this.btnText = this.decryptBtn.querySelector('.btn-text') as HTMLElement;
     this.showTextPreview = document.getElementById('showTextPreview') as HTMLInputElement;
     this.textPreview = document.getElementById('textPreview') as HTMLElement;
@@ -108,6 +114,14 @@ class AgeDecryptor {
       });
     });
 
+    // Input source toggles
+    this.inputSourceRadios.forEach(radio => {
+      radio.addEventListener('change', () => {
+        this.updateInputSourceVisibility();
+        this.updateDecryptButtonState();
+      });
+    });
+
     // Input validation
     this.passphraseInput.addEventListener('input', () => {
       this.updateDecryptButtonState();
@@ -115,6 +129,11 @@ class AgeDecryptor {
 
     this.keyInput.addEventListener('input', () => {
       this.handleKeyInput();
+    });
+
+    // Paste textarea input
+    this.cipherTextInput.addEventListener('input', () => {
+      this.updateDecryptButtonState();
     });
 
     // Decrypt button
@@ -186,7 +205,6 @@ class AgeDecryptor {
           </svg>
           <p style="font-size: 1.1rem; color: #495057; margin: 0 0 0.5rem 0; font-weight: 500;">Drop your .age file here or click to browse</p>
           <small style="font-size: 0.9rem; color: #6c757d; margin: 0;">Supports files encrypted with passphrases or X25519 keys</small>
-          <input type="file" id="fileInput" accept=".age" style="display: none;">
         </div>
       `;
     }
@@ -201,6 +219,17 @@ class AgeDecryptor {
     } else {
       this.passphraseGroup.style.display = 'none';
       this.keyGroup.style.display = 'block';
+    }
+  }
+
+  private updateInputSourceVisibility() {
+    const source = (document.querySelector('input[name="inputSource"]:checked') as HTMLInputElement).value;
+    if (source === 'file') {
+      this.uploadArea.style.display = 'block';
+      this.cipherTextGroup.style.display = 'none';
+    } else {
+      this.uploadArea.style.display = 'none';
+      this.cipherTextGroup.style.display = 'block';
     }
   }
 
@@ -219,21 +248,26 @@ class AgeDecryptor {
   }
 
   private updateDecryptButtonState() {
+    const inputSource = (document.querySelector('input[name="inputSource"]:checked') as HTMLInputElement).value;
     const hasFile = this.currentFile !== null;
+    const hasCiphertext = this.cipherTextInput.value.trim().length > 0;
+
     const selectedMode = (document.querySelector('input[name="mode"]:checked') as HTMLInputElement).value;
-    
-    let hasValidInput = false;
+
+    let hasValidCreds = false;
     if (selectedMode === 'passphrase') {
-      hasValidInput = this.passphraseInput.value.trim().length > 0;
+      hasValidCreds = this.passphraseInput.value.trim().length > 0;
     } else {
-      hasValidInput = this.keyInput.value.trim().length > 0 && this.keyInput.checkValidity();
+      hasValidCreds = this.keyInput.value.trim().length > 0 && this.keyInput.checkValidity();
     }
 
-    this.decryptBtn.disabled = !hasFile || !hasValidInput;
+    const hasValidSource = inputSource === 'file' ? hasFile : hasCiphertext;
+    this.decryptBtn.disabled = !(hasValidSource && hasValidCreds);
   }
 
   private async handleDecrypt() {
-    if (!this.currentFile) return;
+    const inputSource = (document.querySelector('input[name="inputSource"]:checked') as HTMLInputElement).value as 'file'|'paste';
+    if (inputSource === 'file' && !this.currentFile) return;
 
     this.setButtonState(true, 'Decrypting...');
     this.hideMessages();
@@ -253,13 +287,26 @@ class AgeDecryptor {
       keyBytes = new TextEncoder().encode(key);
     }
 
-    const message: WorkerMessage = {
-      mode: selectedMode as 'passphrase' | 'x25519',
-      file: this.currentFile,
-      passphrase,
-      keyBytes,
-      showTextPreview: this.showTextPreview.checked
-    };
+    let message: WorkerMessage;
+    if (inputSource === 'file') {
+      message = {
+        inputSource: 'file',
+        mode: selectedMode as 'passphrase' | 'x25519',
+        file: this.currentFile!, // checked above
+        passphrase,
+        keyBytes,
+        showTextPreview: this.showTextPreview.checked
+      };
+    } else {
+      message = {
+        inputSource: 'paste',
+        mode: selectedMode as 'passphrase' | 'x25519',
+        cipherText: this.cipherTextInput.value,
+        passphrase,
+        keyBytes,
+        showTextPreview: this.showTextPreview.checked
+      };
+    }
 
     console.log('Sending message to worker:', message);
     this.worker.postMessage(message);

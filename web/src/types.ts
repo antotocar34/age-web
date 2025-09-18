@@ -11,13 +11,25 @@ export interface RageWasm {
   ): Promise<ReadableStream<Uint8Array>>;
 }
 
-export interface WorkerMessage {
-  mode: 'passphrase' | 'x25519';
-  file: File;
-  passphrase: string;
-  keyBytes?: Uint8Array;
-  showTextPreview: boolean;
-}
+export type InputSource = 'file' | 'paste';
+
+export type WorkerMessage =
+  | {
+      inputSource: 'file';
+      file: File;
+      mode: 'passphrase' | 'x25519';
+      passphrase: string;
+      keyBytes?: Uint8Array;
+      showTextPreview: boolean;
+    }
+  | {
+      inputSource: 'paste';
+      cipherText: string; // ASCII-armored or raw text
+      mode: 'passphrase' | 'x25519';
+      passphrase: string;
+      keyBytes?: Uint8Array;
+      showTextPreview: boolean;
+    };
 
 export interface DecryptResult {
   ok: boolean;
