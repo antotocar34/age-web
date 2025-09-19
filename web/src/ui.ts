@@ -142,7 +142,7 @@ export function createUI() {
             color: #495057;
             font-size: 1rem;
           ">Ciphertext:</label>
-          <textarea id="cipherText" placeholder="Paste your AGE-encrypted content here (ASCII-armored works)" style="
+          <textarea id="cipherText" placeholder="Paste your AGE-encrypted content here" style="
             width: 100%;
             padding: 0.75rem;
             border: 1px solid #ced4da;
@@ -160,7 +160,7 @@ export function createUI() {
             margin-top: 0.5rem;
             color: #6c757d;
             font-size: 0.85rem;
-          ">Supports ASCII-armored AGE blocks (-----BEGIN AGE ENCRYPTED FILE-----) or other UTF-8 text.</small>
+          "></small>
         </div>
         
         <!-- Decrypt Options -->
