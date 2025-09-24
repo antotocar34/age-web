@@ -247,6 +247,36 @@ class AgeDecryptor {
     this.updateDecryptButtonState();
   }
 
+  private normalizeCipherText(value: string): string {
+    const normalizedNewlines = value.replace(/\r\n?/g, '\n');
+    const blockRegex = /(-*\s*BEGIN\s+AGE\s+ENCRYPTED\s+FILE-*\s*)([\s\S]*?)(\s*-*\s*END\s+AGE\s+ENCRYPTED\s+FILE-*)/gi;
+    return normalizedNewlines.replace(blockRegex, (match: string, header: string, body: string, footer: string) => {
+      if (typeof header !== 'string' || typeof body !== 'string' || typeof footer !== 'string') {
+        return match;
+      }
+
+      const prefixWhitespace = header.match(/^\s*/)?.[0] ?? '';
+      const suffixWhitespace = footer.match(/\s*$/)?.[0] ?? '';
+      const normalizedBody = this.formatArmorBody(body);
+
+      if (!normalizedBody) {
+        return match;
+      }
+
+      return `${prefixWhitespace}-----BEGIN AGE ENCRYPTED FILE-----\n${normalizedBody}\n-----END AGE ENCRYPTED FILE-----${suffixWhitespace}`;
+    });
+  }
+
+  private formatArmorBody(body: string): string {
+    const contiguous = body.replace(/[\s\r\n]+/g, '');
+    if (contiguous.length === 0) {
+      return '';
+    }
+
+    const wrappedLines = contiguous.match(/.{1,64}/g) ?? [contiguous];
+    return wrappedLines.join('\n');
+  }
+
   private updateDecryptButtonState() {
     const inputSource = (document.querySelector('input[name="inputSource"]:checked') as HTMLInputElement).value;
     const hasFile = this.currentFile !== null;
@@ -298,10 +328,14 @@ class AgeDecryptor {
         showTextPreview: this.showTextPreview.checked
       };
     } else {
+      const normalizedCipherText = this.normalizeCipherText(this.cipherTextInput.value);
+      if (normalizedCipherText !== this.cipherTextInput.value) {
+        this.cipherTextInput.value = normalizedCipherText;
+      }
       message = {
         inputSource: 'paste',
         mode: selectedMode as 'passphrase' | 'x25519',
-        cipherText: this.cipherTextInput.value,
+        cipherText: normalizedCipherText,
         passphrase,
         keyBytes,
         showTextPreview: this.showTextPreview.checked

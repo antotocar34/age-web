@@ -390,6 +390,17 @@ main {
   gap: 1rem;
 }
 
+#textPreview {
+  width: 100%;
+  max-width: 100%;
+}
+
+#textPreview pre {
+  width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 .success-icon,
 .error-icon {
   width: 20px;
@@ -511,6 +522,26 @@ footer p {
     padding: 1.5rem;
   }
   
+  .success-message {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .success-icon {
+    margin-top: 0;
+  }
+
+  #textPreview {
+    max-height: 45vh;
+    padding: 0.85rem;
+  }
+
+  #textPreview pre {
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
   .option-group {
     flex-direction: column;
     gap: 0.8rem;
@@ -546,6 +577,14 @@ footer p {
   
   .option-group label {
     padding: 0.5rem 1rem;
+  }
+
+  #textPreview {
+    padding: 0.75rem;
+  }
+
+  #textPreview pre {
+    font-size: 0.9rem;
   }
 }
 
